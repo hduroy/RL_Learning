@@ -39,6 +39,10 @@ parser.add_argument("--animation-interval", type=float, default = 0.2)
 ## ==================== End of Advanced settings ====================
 
 
+## ==================== Evaluate Settings ====================
+parser.add_argument("--max-iteration", type=int, default=1000)  # maximum number of iterations for evaluation
+
+## ==================== End of Evaluate settings ====================
 args = parser.parse_args()     
 def validate_environment_parameters(env_size, start_state, target_state, forbidden_states):
     if not (isinstance(env_size, tuple) or isinstance(env_size, list) or isinstance(env_size, np.ndarray)) and len(env_size) != 2:

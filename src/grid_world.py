@@ -61,6 +61,21 @@ class GridWorld():
         self.traj.append(state_store_2)
         return self.agent_state, reward, done, {}   
     
+    def only_step(self, action):
+        """
+        Perform a step in the environment without updating the trajectory.
+        This is useful for evaluating policies without visualizing the trajectory.
+        """
+        assert action in self.action_space, "Invalid action"
+
+        next_state, reward = self._get_next_state_and_reward(self.agent_state, action)
+        done = self._is_done(next_state)
+
+        self.agent_state = next_state
+        return self.agent_state, reward, done, {}
+    
+
+    
         
     def _get_next_state_and_reward(self, state, action):
         x, y = state
@@ -181,8 +196,8 @@ class GridWorld():
                     if (dx, dy) != (0, 0):
                         arrow = patches.FancyArrow(
                             x, y,
-                            dx=(0.1 + action_probability / 2) * dx,
-                            dy=(0.1 + action_probability / 2) * dy,
+                            dx=(0.1 + action_probability / 4) * dx,
+                            dy=(0.1 + action_probability / 4) * dy,
                             color=self.color_policy, width=0.001, head_width=0.05
                         )
                         self.ax.add_patch(arrow)
@@ -212,3 +227,24 @@ class GridWorld():
             x = i % self.env_size[0]
             y = i // self.env_size[0]
             self.ax.text(x, y, str(value), ha='center', va='center', fontsize=10, color='black')
+
+
+    def pos_2_index(self, pos):
+        """
+        Convert a position (x, y) to a state index.
+        """
+        if isinstance(pos, tuple) or isinstance(pos, list):
+            return pos[0] + pos[1] * self.env_size[0]
+        else:
+            raise ValueError("Position must be a tuple or list.")
+        
+    def index_2_pos(self, index):
+        """
+        Convert a state index to a position (x, y).
+        """
+        if isinstance(index, int):
+            x = index % self.env_size[0]
+            y = index // self.env_size[0]
+            return (x, y)
+        else:
+            raise ValueError("Index must be an integer.")
