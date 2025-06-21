@@ -21,7 +21,8 @@ class GridWorld():
         self.forbidden_states = forbidden_states
 
         self.agent_state = start_state
-        self.action_space = args.action_space          
+        self.action_space = args.action_space    
+        self.num_actions = len(self.action_space)      
         self.reward_target = args.reward_target
         self.reward_forbidden = args.reward_forbidden
         self.reward_step = args.reward_step
@@ -40,6 +41,18 @@ class GridWorld():
 
     def reset(self):
         self.agent_state = self.start_state
+        self.traj = [self.agent_state] 
+        return self.agent_state, {}
+
+    def set_state(self, state):
+        """
+        Set the agent's state to a specific position.
+        This is useful for resetting the environment or evaluating policies.
+        """
+        assert isinstance(state, tuple) and len(state) == 2, "State must be a tuple of (x, y)"
+        assert 0 <= state[0] < self.env_size[0] and 0 <= state[1] < self.env_size[1], "State out of bounds"
+        
+        self.agent_state = state
         self.traj = [self.agent_state] 
         return self.agent_state, {}
 

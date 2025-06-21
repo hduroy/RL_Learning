@@ -132,6 +132,70 @@ class PolicyEvaluator:
         if iteration == self.max_iteration - 1:
             print(f"Warning: Maximum iterations ({self.max_iteration}) reached without convergence.")
         return self.state_value, self.policy
+    
+    def policy_iteration(self, env : GridWorld, theta=1e-6):
+        """
+        Perform policy iteration to find the optimal policy and state value function.
+
+        Parameters:
+            env (GridWorld): The environment in which the policy iteration is performed.
+            theta (float): Convergence threshold for policy updates.
+
+        Returns:
+            np.ndarray: The optimal state value function.
+            np.ndarray: The optimal policy.
+        """
+        self.state_value = np.zeros(env.num_states)
+        self.policy = np.zeros((env.num_states, len(env.action_space)))
+
+        policy_stable = False
+        iteration = 0
+
+        while not policy_stable and iteration < self.max_iteration:
+            iteration += 1
+            # Policy Evaluation
+            self.state_value = self.calc_state_value(env, self.policy, theta)
+            
+            env.add_state_values(self.state_value)  # Add state values to the environment for rendering
+            
+            # Policy Improvement
+            policy_stable = True
+            for state in range(env.num_states):
+                old_action = np.argmax(self.policy[state])
+                v_new = []
+                for action in range(len(env.action_space)):
+                    env.agent_state = env.index_2_pos(state)
+                    next_state_pos, reward, _, _ = env.only_step(env.action_space[action])
+                    next_state = env.pos_2_index(next_state_pos)
+                    q_value = reward + self.gamma * self.state_value[next_state]
+                    v_new.append(q_value)
+                if not v_new:
+                    continue
+                max_value = max(v_new)
+                max_indices = [i for i, v in enumerate(v_new) if v == max_value]
+                if len(max_indices) > 1:
+                    chosen_index = np.random.choice(max_indices)
+                else:
+                    chosen_index = v_new.index(max_value)
+                
+                # Update the policy for the state
+                self.policy[state] = np.zeros(len(env.action_space))
+                self.policy[state][chosen_index] = 1.0
+
+            
+                
+                if old_action != chosen_index:
+                    policy_stable = False
+
+            env.add_policy(self.policy) # Add policy to the environment for rendering
+            env.render()  # Render the environment after policy improvement
+            
+            if policy_stable:
+                print(f"Policy stable after {iteration} iterations.")
+                break
+            if iteration == self.max_iteration - 1:
+                print(f"Warning: Maximum iterations ({self.max_iteration}) reached without convergence.")
+        return self.state_value, self.policy
 
     def evaluate_policy(self):
         """
@@ -180,7 +244,17 @@ if __name__ == "__main__":
     print("Optimal Policy Matrix:\n", optimal_policy)
     env.add_state_values(state_values)
     env.add_policy(optimal_policy)
-    env.render(animation_interval=100)
+    env.render(animation_interval=2)
     # Calculate state values using the utility function
     # state_values = calc_state_value(env, policy_matrix)
     # print("State Values from utility function:\n", state_values)
+
+
+    # Perform policy iteration
+    state_values, optimal_policy = evaluator.policy_iteration(env)
+    print("Optimal State Values from Policy Iteration:\n", state_values)
+    print("Optimal Policy Matrix from Policy Iteration:\n", optimal_policy)
+    env.add_state_values(state_values)
+    env.add_policy(optimal_policy)
+    env.render(animation_interval=2)
+
