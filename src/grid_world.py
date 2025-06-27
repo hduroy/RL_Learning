@@ -261,3 +261,15 @@ class GridWorld():
             return (x, y)
         else:
             raise ValueError("Index must be an integer.")
+        
+
+    def sample_action(self, state, policy=None):
+        """
+        Sample an action from the policy for a given state.
+        If no policy is provided, a random action is sampled.
+        """
+        if policy is None:
+            return self.action_space[np.random.randint(self.num_actions)]
+        else:
+            action_probabilities = policy[state]
+            return self.action_space[np.random.choice(self.num_actions, p=action_probabilities)]
