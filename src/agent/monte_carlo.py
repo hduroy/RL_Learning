@@ -22,12 +22,12 @@ class MonteCarloAgent:
         epsilon: float = 1.0,
         num_episodes: int = 1000,
     ):
-        """
-        self.env = env
-        self.gamma = gamma
-        self.epsilon = epsilon
-        self.num_episodes = num_episodes
-        """
+        
+        # self.env = env
+        # self.gamma = gamma
+        # self.epsilon = epsilon
+        # self.num_episodes = num_episodes
+        
         self.env = env
         self.gamma = gamma
         self.epsilon = epsilon

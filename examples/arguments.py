@@ -29,6 +29,9 @@ parser.add_argument("--reward-forbidden", type=float, default = -5)
 
 # sepcify the reward for each step
 parser.add_argument("--reward-step", type=float, default = -1)
+
+parser.add_argument("--reward-stay", type=float, default = -3)
+
 ## ==================== End of User settings ====================
 
 
